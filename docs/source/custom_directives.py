@@ -250,17 +250,22 @@ class CustomImageLinkDirective(Directive):
     }
 
     def run(self):
-        image_link = self.options.get("image_link", "")
-        image_src = self.options.get("image_src", "")
-        image_title = self.options.get("image_title", "")
+        options = self.options
+        image_link = options.get("image_link", "")
+        image_src = options.get("image_src", "")
+        image_title = options.get("image_title", "")
 
-        callout_rst = _CUSTOM_IMAGE_LINK_TEMPLATE.format(
-            image_link=image_link,
-            image_src=image_src,
-            image_title=image_title,
-        )
-
-        image_list = StringList(callout_rst.split("\n"))
+        # Compose the RST as a list of lines, avoiding join/split unnecessary work
+        lines = [
+            ".. raw:: html",
+            "",
+            "    <div>",
+            f'        <a href="{image_link}" title="{image_title}">',
+            f'          <img src="{image_src}" alt="{image_title}"/>',
+            "        </a>",
+            "    </div>",
+        ]
+        image_list = StringList(lines)
         image = nodes.paragraph()
         self.state.nested_parse(image_list, self.content_offset, image)
         return [image]
