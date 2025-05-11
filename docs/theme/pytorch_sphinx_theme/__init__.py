@@ -11,7 +11,8 @@ __version_full__ = __version__
 
 def get_html_theme_path():
     """Return list of HTML theme paths."""
-    cur_dir = path.abspath(path.dirname(path.dirname(__file__)))
+    # Compute the parent directory of the parent of this file
+    cur_dir = _parent_dir_n_times(__file__, 2)
     return cur_dir
 
 
@@ -20,3 +21,12 @@ def setup(app):
     app.add_html_theme(
         "pytorch_sphinx_theme", path.abspath(path.dirname(__file__))
     )
+
+
+def _parent_dir_n_times(p, n):
+    for _ in range(n):
+        p = p.rpartition(path.sep)[0]
+        if not p:
+            p = path.sep
+            break
+    return p
